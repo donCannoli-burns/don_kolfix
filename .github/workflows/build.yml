@@ -12,6 +12,16 @@ env:
   path: "dist"
 
 jobs:
+  state-preferences-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - name: Validate Don State preference schema and safety gates
+        run: node tests/state-preferences.test.cjs
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -44,6 +54,9 @@ jobs:
 
       - name: Install New Dependencies
         run: yarn install --immutable
+
+      - name: Typecheck
+        run: yarn exec tsc --noEmit
 
       - name: Build
         run: yarn run build

@@ -1,5 +1,10 @@
 import { Args } from "grimoire-kolmafia";
 import {
+  initializeDonStatePreferences,
+  showDonStatePreferences,
+  verifyDonStatePreferences,
+} from "./state-preferences";
+import {
   handlingChoice,
   myName,
   print,
@@ -108,6 +113,18 @@ const config = Args.create("kolfix", "For updating important KoLmafia settings",
     help: "Parse session log to try recover any changed preferences using what was logged",
     setting: "",
   }),
+  stateStatus: Args.flag({
+    help: "Show Don State v0.2 policies and cached flag projections (read-only)",
+    setting: "",
+  }),
+  stateInit: Args.flag({
+    help: "Initialize missing Don State v0.2 preferences with safe defaults only",
+    setting: "",
+  }),
+  stateVerify: Args.flag({
+    help: "Validate Don State v0.2 preferences without changing them",
+    setting: "",
+  }),
 });
 
 const places = [
@@ -155,6 +172,15 @@ export default function main(command = "help"): void {
   Args.fill(config, command);
   if (config.help) {
     Args.showHelp(config);
+    return;
+  }
+
+  // State Engine commands deliberately bypass legacy auto/session/disableAll.
+  // They never initialize themselves on a normal kolfix invocation.
+  if (config.stateStatus || config.stateInit || config.stateVerify) {
+    if (config.stateInit) initializeDonStatePreferences();
+    if (config.stateVerify) verifyDonStatePreferences();
+    if (config.stateStatus) showDonStatePreferences();
     return;
   }
 
@@ -288,6 +314,13 @@ export default function main(command = "help"): void {
         }
 
         for (const [pref, value] of prefs) {
+          // Don State preferences are an untrusted projection of an immutable
+          // event journal. Old session logs must never replay these cached
+          // values across rollover or ascension.
+          if (pref.startsWith("donState_")) {
+            print("Skipping Don State projection during session recovery: " + pref, "orange");
+            continue;
+          }
           setProperty(pref, value);
         }
       }
