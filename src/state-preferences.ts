@@ -238,10 +238,7 @@ function isPhase(value: string): boolean {
 }
 
 function isNonnegativeInteger(value: string): boolean {
-  return (
-    /^(0|[1-9][0-9]*)$/.test(value) &&
-    Number.isSafeInteger(Number(value))
-  );
+  return /^(0|[1-9][0-9]*)$/.test(value) && Number.isSafeInteger(Number(value));
 }
 
 function validValue(pref: StatePreferenceDefinition, value: string): boolean {
@@ -258,8 +255,7 @@ function validValue(pref: StatePreferenceDefinition, value: string): boolean {
       return value === "" || /^[0-9]{8}$/.test(value);
     case "timestamp":
       return (
-        value === "" ||
-        /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(value)
+        value === "" || /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(value)
       );
     case "phase":
       return isPhase(value);
@@ -287,14 +283,8 @@ export function initializeDonStatePreferences(): number {
       initialized += 1;
     }
   }
-  print(
-    `Don State v0.2 defaults initialized: ${initialized} missing values.`,
-    "green"
-  );
-  print(
-    "No game actions, phase transitions, ascension hooks, or reset performed.",
-    "gray"
-  );
+  print(`Don State v0.2 defaults initialized: ${initialized} missing values.`, "green");
+  print("No game actions, phase transitions, ascension hooks, or reset performed.", "gray");
   return initialized;
 }
 
@@ -313,15 +303,12 @@ export function verifyDonStatePreferences(): boolean {
   const ascensions = getProperty("donState_scopeAscensions");
   const hasActiveFlag = DON_STATE_FLAGS.some(
     (flag) =>
-      getProperty(`donState_flag_${flag}`) !== "0" &&
-      getProperty(`donState_flag_${flag}`) !== ""
+      getProperty(`donState_flag_${flag}`) !== "0" && getProperty(`donState_flag_${flag}`) !== ""
   );
 
   if (
     hasActiveFlag &&
-    (!/^[0-9]{1,12}$/.test(player) ||
-      !/^[0-9]{8}$/.test(day) ||
-      !isNonnegativeInteger(ascensions))
+    (!/^[0-9]{1,12}$/.test(player) || !/^[0-9]{8}$/.test(day) || !isNonnegativeInteger(ascensions))
   ) {
     invalid.push("donState_scope_incomplete_for_active_flags");
   }
@@ -342,10 +329,7 @@ export function verifyDonStatePreferences(): boolean {
     print(`Don State preferences NEED REVIEW: ${invalid.join(", ")}`, "red");
     return false;
   }
-  print(
-    "Don State preference syntax valid. Cached flags are NOT verified game evidence.",
-    "green"
-  );
+  print("Don State preference syntax valid. Cached flags are NOT verified game evidence.", "green");
   return true;
 }
 
@@ -353,11 +337,7 @@ export function verifyDonStatePreferences(): boolean {
 export function showDonStatePreferences(): void {
   print("Don State Engine v0.2 — preference view (NOT journal authority)", "blue");
   for (const pref of DON_STATE_PREFERENCES) {
-    if (
-      pref.purpose === "policy" ||
-      pref.purpose === "scope" ||
-      pref.purpose === "calendar"
-    ) {
+    if (pref.purpose === "policy" || pref.purpose === "scope" || pref.purpose === "calendar") {
       const actual = getProperty(pref.key);
       print(`${pref.key} = ${actual === "" ? "(unset)" : actual}`);
     }
@@ -367,8 +347,5 @@ export function showDonStatePreferences(): void {
   );
   print(`Projected flags: ${stages.join(" | ")}`);
   print("0=pending, 1=started, 2=finished, 3=skipped, 4=failed, 5=reconcile");
-  print(
-    "Warning: journal receipts, not writable preferences, must prove completion.",
-    "orange"
-  );
+  print("Warning: journal receipts, not writable preferences, must prove completion.", "orange");
 }

@@ -1,10 +1,5 @@
 import { Args } from "grimoire-kolmafia";
 import {
-  initializeDonStatePreferences,
-  showDonStatePreferences,
-  verifyDonStatePreferences,
-} from "./state-preferences";
-import {
   handlingChoice,
   myName,
   print,
@@ -15,6 +10,12 @@ import {
   visitUrl,
 } from "kolmafia";
 import { $effect, $item, $items, get, PropertiesManager, set } from "libram";
+
+import {
+  initializeDonStatePreferences,
+  showDonStatePreferences,
+  verifyDonStatePreferences,
+} from "./state-preferences";
 
 const config = Args.create("kolfix", "For updating important KoLmafia settings", {
   auto: Args.flag({
@@ -318,10 +319,7 @@ export default function main(command = "help"): void {
           // event journal. Old session logs must never replay these cached
           // values across rollover or ascension.
           if (pref.startsWith("donState_")) {
-            print(
-              `Skipping Don State projection during session recovery: ${pref}`,
-              "orange"
-            );
+            print(`Skipping Don State projection during session recovery: ${pref}`, "orange");
             continue;
           }
           setProperty(pref, value);
