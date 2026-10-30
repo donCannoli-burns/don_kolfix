@@ -30,7 +30,7 @@ for (const [key, value] of [
   ["donState_eventEvidence", "unknown"], ["donState_daysTillHalloween", "unknown"]
 ]) {
   check(key + " safe default", () => {
-    assert.ok(src.includes('key: "' + key + '", defaultValue: "' + value + '"'));
+    assert.ok(src.includes(`key: "${key}",\n    defaultValue: "${value}"`));
   });
 }
 check("namespace is always donState_", () => {
