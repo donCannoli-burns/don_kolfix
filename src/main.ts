@@ -318,7 +318,7 @@ export default function main(command = "help"): void {
           // event journal. Old session logs must never replay these cached
           // values across rollover or ascension.
           if (pref.startsWith("donState_")) {
-            print("Skipping Don State projection during session recovery: " + pref, "orange");
+            print(`Skipping Don State projection during session recovery: ${pref}`, "orange");
             continue;
           }
           setProperty(pref, value);
