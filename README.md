@@ -229,3 +229,24 @@ Before using a local source build, run `yarn lint`, `yarn build`, and `npx tsc -
 The core script is TypeScript (`src/main.ts`), using [KoLmafia](https://github.com/kolmafia/kolmafia), [libram](https://github.com/loathers/libram), and `grimoire-kolmafia`. The repo uses Yarn, esbuild, and a GitHub Actions workflow intended to publish compiled scripts to `release`.
 
 This fork retains the original project's MIT license and its attribution: **Copyright © 2022 Skaazi**. See [LICENSE](LICENSE) and the [upstream kolfix repository](https://github.com/s-k-z/kolfix). This project is community tooling and is not affiliated with Kingdom of Loathing or KoLmafia.
+
+<!-- don-kolfix-settings-backup:start -->
+## Settings backup, verification, restore, rollback and GCLI status
+
+The Linux host companion `tools/kolfix-settings` safely archives the **actual**
+KoLmafia `settings/` files, including byte-exact `GLOBAL_aliases.txt`, and
+stages or restores them to a separate KoLmafia installation. Archives are
+verified with SHA-256; restore requires explicit confirmation that KoLmafia is
+stopped, and Docker-mounted Xpra installs can verify container/mount identity.
+A rollback snapshot is preserved before replacement.
+
+Use `kolfix backupStatus` from the gCLI for a **read-only** report of the last
+successful host operation, or `call kolfix_backup_status.ash`. For the short
+`backup-status` command, register an optional gCLI alias once:
+`alias backup-status => call kolfix_backup_status.ash;`
+
+See [docs/settings-backup.md](docs/settings-backup.md) for commands, safety
+restrictions, installation locations, legacy snapshot support, and recovery.
+The GCLI viewer never accesses Docker or mutates preferences. Only the host
+program can create/restore settings archives. **Never commit settings backups.**
+<!-- don-kolfix-settings-backup:end -->

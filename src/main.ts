@@ -1,5 +1,6 @@
 import { Args } from "grimoire-kolmafia";
 import {
+  cliExecute,
   handlingChoice,
   myName,
   print,
@@ -114,6 +115,10 @@ const config = Args.create("kolfix", "For updating important KoLmafia settings",
     help: "Parse session log to try recover any changed preferences using what was logged",
     setting: "",
   }),
+  backupStatus: Args.flag({
+    help: "Read the last host-side settings backup action (read-only snapshot)",
+    setting: "",
+  }),
   stateStatus: Args.flag({
     help: "Show Don State v0.2 policies and cached flag projections (read-only)",
     setting: "",
@@ -182,6 +187,15 @@ export default function main(command = "help"): void {
     if (config.stateInit) initializeDonStatePreferences();
     if (config.stateVerify) verifyDonStatePreferences();
     if (config.stateStatus) showDonStatePreferences();
+    return;
+  }
+
+  // Read-only status from data/kolfix-backup-status.txt. No host process is
+  // launched and the normal preference-repair path is not entered.
+  if (config.backupStatus) {
+    if (!cliExecute("call kolfix_backup_status.ash")) {
+      print("Missing kolfix_backup_status.ash; install the GCLI reader in scripts/", "red");
+    }
     return;
   }
 
