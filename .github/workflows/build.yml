@@ -21,6 +21,8 @@ jobs:
           node-version: "18"
       - name: Validate Don State preference schema and safety gates
         run: node tests/state-preferences.test.cjs
+      - name: Validate existing-installation safety with isolated fixtures
+        run: node tests/install-mafia.test.cjs
 
   lint:
     runs-on: ubuntu-latest

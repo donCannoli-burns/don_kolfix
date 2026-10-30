@@ -30,6 +30,16 @@ yarn build
 yarn install-mafia
 ```
 
+**Repeat installation:** `yarn install-mafia` now checks the standard `~/.kolmafia/scripts/kolfix` path. If it is already a symlink resolving to this checkout's `dist/scripts/kolfix`, the installer prints an *already linked* message and exits successfully. If the existing entry is a different symlink, directory, file, or broken link, it refuses to replace it. No installed content is removed. Run `node tools/install-mafia.mjs --check` to inspect link status without trying to install.
+
+```bash
+ls -ld ~/.kolmafia/scripts/kolfix
+readlink -f ~/.kolmafia/scripts/kolfix
+readlink -f ~/repos/donCannoli-burns/don_kolfix/dist/scripts/kolfix
+```
+
+If the real paths match, a successful `yarn build` already refreshes the code through the existing link, so reinstalling is unnecessary. Do not delete the existing entry until verifying whether it is a user-maintained directory or a symlink owned by another installation.
+
 The build task outputs `dist/scripts/kolfix/kolfix.js`. The `install-mafia` task uses the repository's `create-kolmafia-script --install` integration; configure your local KoLmafia installation if that tool requests it. For source changes, `yarn watch` rebuilds on edits and `yarn lint` checks code style.
 
 ## Quick start

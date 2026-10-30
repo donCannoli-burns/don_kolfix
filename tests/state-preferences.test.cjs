@@ -21,7 +21,7 @@ const actual = Array.from(flagPart[1].matchAll(/"([a-z0-9_]+)"/g), x => x[1]);
 check("all 26 upstream phase flags are represented in exact order", () => assert.deepEqual(actual, flags));
 check("discrepancy projection has five boolean+note slots", () => {
   assert.ok(src.includes("[1, 2, 3, 4, 5]"));
-  assert.ok(src.includes('key: "donState_discrepancy_" + n + "_note"'));
+  assert.ok(src.includes("key: `donState_discrepancy_${n}_note`"));
 });
 for (const [key, value] of [
   ["donState_loopRun", "false"], ["donState_stopForDiscrepancy", "true"],
@@ -30,11 +30,11 @@ for (const [key, value] of [
   ["donState_eventEvidence", "unknown"], ["donState_daysTillHalloween", "unknown"]
 ]) {
   check(key + " safe default", () => {
-    assert.ok(src.includes('key: "' + key + '", defaultValue: "' + value + '"'));
+    assert.ok(src.includes(`key: "${key}",\n    defaultValue: "${value}"`));
   });
 }
 check("namespace is always donState_", () => {
-  assert.ok(src.includes('key: "donState_flag_" + flag'));
+  assert.ok(src.includes("key: `donState_flag_${flag}`"));
   assert.ok(src.includes('key: "donState_'));
 });
 check("only missing defaults can be written", () => {
