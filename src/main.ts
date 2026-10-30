@@ -314,6 +314,13 @@ export default function main(command = "help"): void {
         }
 
         for (const [pref, value] of prefs) {
+          // Don State preferences are an untrusted projection of an immutable
+          // event journal. Old session logs must never replay these cached
+          // values across rollover or ascension.
+          if (pref.startsWith("donState_")) {
+            print("Skipping Don State projection during session recovery: " + pref, "orange");
+            continue;
+          }
           setProperty(pref, value);
         }
       }
