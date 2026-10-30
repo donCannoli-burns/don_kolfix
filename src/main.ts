@@ -100,6 +100,10 @@ const config = Args.create("kolfix", "For updating important KoLmafia settings",
     help: "Set the valueOfAdventure (no max, but not recommended above 10k)",
     setting: "",
   }),
+  yetiCold: Args.flag({
+    help: "Set Cooler Yeti choice 1560 to option 2 (make next drink impossibly cold); does not change daily usage state",
+    setting: "",
+  }),
   session: Args.flag({
     help: "Parse session log to try recover any changed preferences using what was logged",
     setting: "",
@@ -287,6 +291,15 @@ export default function main(command = "help"): void {
           setProperty(pref, value);
         }
       }
+    }
+
+    // Prefer the next-drink adventure boost whenever configuring the Yeti.
+    // KoLmafia updates _coolerYetiAdventures and coolerYetiMode from the actual
+    // choice response; these are state trackers, not preferences to forge.
+    // Apply after session restoration so an old log cannot undo this preference.
+    if (config.auto || config.yetiCold) {
+      setProperty("choiceAdventure1560", "2");
+      print("Cooler Yeti choice 1560: option 2 (impossibly cold next drink)", color);
     }
 
     const toggle = (prop: string) => set(prop, config.maxAll || !get(prop));
