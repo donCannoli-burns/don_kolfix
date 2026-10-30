@@ -9,7 +9,7 @@
     "format": "eslint src --fix --ext .ts && prettier --write src/**/*.ts *.{mjs,js,json}",
     "lint": "eslint src --ext .ts && prettier --check src/**/*.ts",
     "watch": "node build.mjs --watch",
-    "install-mafia": "create-kolmafia-script --install"
+    "install-mafia": "node tools/install-mafia.mjs"
   },
   "dependencies": {
     "grimoire-kolmafia": "^0.3.13",
