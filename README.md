@@ -166,6 +166,46 @@ For a drop of 1,000 Meat and two items, the value is 100:
 kolfix glitch=100
 ```
 
+## Don State Engine v0.2 — preferences (explicit opt-in)
+
+This fork also defines a **namespaced and typed preference contract** for the observation/journal design being developed in [don_custom_functions](https://github.com/donCannoli-burns/don_custom_functions/pull/5). The new options are available in `main` source; once the compiled `release` branch has been rebuilt, the KoLmafia CLI can use:
+
+```text
+kolfix stateStatus     # inspect cached policy/flags, no preference changes
+kolfix stateInit       # initialize missing defaults; no rollover/ascension reset
+kolfix stateVerify     # validate current values, no automatic repair
+```
+
+`stateInit` writes only **missing, non-empty defaults** and never overwrites an existing non-empty value. It does not add hooks, start the State Engine, launch adventure scripts, change the gameplay account, or mark workflow phases as completed. All three state commands exit before legacy `auto`, `disableAll`, `session`, and other repair operations; don't mix them with unrelated options on the same invocation.
+
+### Preference contract
+
+| KoLmafia preference | Initial value | Meaning |
+| --- | --- | --- |
+| `donState_schemaVersion` | `0.2` | Versioned schema |
+| `donState_loopRun` | `false` | Intended looping mode, not execution permission |
+| `donState_stopForDiscrepancy` | `true` | Fail closed on inconsistent evidence |
+| `donState_autoFallback` / `donState_nextFallback` | `false` | Safe fallback policy and queued fallback |
+| `donState_maxAutomaticAdventureSpend` | `0` | Default is no automatically budgeted turns |
+| `donState_nextFlagExpected` / `donState_nextFallbackFlag` | unset | Named workflow IDs, not CLI commands |
+| `donState_scopePlayerId`, `donState_scopeDay`, `donState_scopeAscensions` | unset | Future journal-attested player/day/life scope |
+| `donState_lastProjectionReceipt` | unset | Journal evidence link; not self-authenticating |
+| `donState_lastFlagName`, `donState_lastFlagActivation`, `donState_lastFlagEdit` | unset | Last journal-derived phase/timestamps |
+| `donState_flag_<phase>` | `0` | One per 26 canonical phase/substate names |
+| `donState_discrepancy_1..5` and `donState_discrepancy_N_note` | `false` / unset | Dashboard projection of first five issues |
+| `donState_nextHalloween`, `donState_daysTillHalloween` | unset / `unknown` | Calendar evidence not yet connected |
+| `donState_isHalloween`, `donState_eveOfHalloween`, `donState_eveOfEvent`, `donState_eventEvidence` | `unknown` | No invented holiday result |
+
+Phase code legend: `0=pending`, `1=started`, `2=finished`, `3=skipped`, `4=failed`, `5=needs_reconciliation`.
+
+The phase names are the exact `DON_STATE_FLAGS` list in [src/state-preferences.ts](src/state-preferences.ts), including `start_day`, `setup_l1`, `leg1_farm`, `post_farm_l1`, `ascension`, `post_ascension_hook`, `path_run`, `new_life`, `leg2_farm`, `end_day`, and supporting resource/organ/ronin/market flags.
+
+**Important distinction:** KoLmafia preferences can be edited manually or by scripts; they are **not** proof that any turn was spent, an item obtained, or an ascension completed. The append-only journal remains the source of evidence. `stateInit` deliberately leaves scope identifiers unset; another validated observer/journal component must bind them before cached nonzero flag statuses are trusted. It never auto-resets flags at rollover or ascension. The broad `kolfix session` recovery command explicitly skips `donState_` entries so historic logs cannot replay stale phase statuses across a new life.
+
+### Verification
+
+Before using a local source build, run `yarn lint`, `yarn build`, and `npx tsc --noEmit`. After compiling/installing the release, `kolfix stateStatus` should make no changes. Use `kolfix stateInit` only when you intentionally want missing defaults created. Verify that rerunning `stateInit` leaves existing non-empty flags unchanged. No live gameplay is needed for these checks.
+
 ## Safety and troubleshooting
 
 - **Back up your KoLmafia preference files** before broad recovery commands, especially `session`, `disableAll`, and `maxAll`.
