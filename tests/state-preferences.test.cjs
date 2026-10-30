@@ -34,7 +34,7 @@ for (const [key, value] of [
   });
 }
 check("namespace is always donState_", () => {
-  assert.ok(src.includes('key: "donState_flag_"') === false);
+  assert.ok(src.includes('key: "donState_flag_" + flag'));
   assert.ok(src.includes('key: "donState_'));
 });
 check("only missing defaults can be written", () => {
