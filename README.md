@@ -92,10 +92,22 @@ These are local preference edits. Daily flags generally reset at rollover or asc
 | `ltt` | Toggles LT&T Office availability. |
 | `mall=N` | Sets `autoBuyPriceLimit`. Values above 250,000 are warned about, **not blocked**. |
 | `voa=N` | Sets `valueOfAdventure`. Values above 10,000 are warned about, **not blocked**. |
+| `yetiCold` | Sets `choiceAdventure1560 = 2`, selecting the Cooler Yeti’s **“Make my next drink impossibly cold!”** option when available. Also applied by `auto`. |
 | `maximizer` | Resets `maximizerMRUList` to KoLmafia's default; restart KoLmafia afterward. |
 | `popups` | Toggles `suppressNegativeStatusPopup`, which controls certain negative-status mini-browser popups. |
 
 **Toggle warning:** Running `gingerbread`, `love`, `ltt` or `popups` a second time reverses the setting. Use `maxAll` to set the supported permanent-unlock preferences to true rather than toggling them.
+
+### Cooler Yeti drink-cooling choice
+
+```text
+kolfix yetiCold
+get choiceAdventure1560
+```
+
+The configured value should be `2` (choice adventure 1560, **“Make my next drink impossibly cold!”**). `kolfix auto` also applies this preference after any session-log restoration in the same invocation.
+
+**This is a choice preference, not a claim that the drink boost has been used.** KoLmafia determines `_coolerYetiAdventures` (the once-per-day usage flag) and `coolerYetiMode` (expected `adventures` after the choice) from actual game responses. `kolfix` deliberately does not forge these game-state fields, grant familiar XP, or initiate the choice.
 
 ## Recovery recipes
 
