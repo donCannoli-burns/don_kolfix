@@ -55,6 +55,13 @@ jobs:
       - name: Install New Dependencies
         run: yarn install --immutable
 
+      - name: Preview exact Prettier formatting (temporary, no write)
+        run: |
+          for f in src/report-contract.ts src/report-preferences.ts src/don-report.ts; do
+            echo "DONFMT_START:$f"
+            ./node_modules/.bin/prettier "$f"
+            echo "DONFMT_END:$f"
+          done
       - name: ESLint & Prettier
         run: yarn run lint
 
