@@ -5,12 +5,26 @@
  * NEVER writes JSON or turns on relay hooks.
  */
 import {
-  getProperty, haveSkill, myAscensions, myFullness, myId,
-  myInebriety, mySpleenUse, print, Skill, toInt, todayToString,
+  getProperty,
+  haveSkill,
+  myAscensions,
+  myFullness,
+  myId,
+  myInebriety,
+  mySpleenUse,
+  print,
+  Skill,
+  toInt,
+  todayToString,
 } from "kolmafia";
+
 import {
-  DON_REPORT_ROUTES, nodeAddress, parseDonReportCommand,
-  type DonNode, type DonScope, type DonValue,
+  DON_REPORT_ROUTES,
+  nodeAddress,
+  parseDonReportCommand,
+  type DonNode,
+  type DonScope,
+  type DonValue,
 } from "./report-contract";
 
 function emit(scope: DonScope, node: DonNode, value: DonValue, quiet: boolean): void {
@@ -49,7 +63,10 @@ export default function main(command = ""): void {
   const s = scope();
   const quiet = args.quiet && !args.print;
   if (args.diff) {
-    print("DIFF UNKNOWN: No verified prior report receipt is loaded. No comparison claimed.", "orange");
+    print(
+      "DIFF UNKNOWN: No verified prior report receipt is loaded. No comparison claimed.",
+      "orange"
+    );
   }
   if (args.route === "skills_current") {
     if (args.arguments.length !== 0) {
@@ -59,12 +76,18 @@ export default function main(command = ""): void {
     let n = 0;
     for (const skill of Skill.all()) {
       if (!haveSkill(skill)) continue;
-      emit(s, {domain: "skills", subject: `skill/${toInt(skill)}`,
-        metric: "current"}, true, quiet);
+      emit(
+        s,
+        { domain: "skills", subject: `skill/${toInt(skill)}`, metric: "current" },
+        true,
+        quiet
+      );
       if (!quiet) print(`  ${skill}`);
       n++;
     }
-    print(`Source ${owner}; ${n} currently available skills. Permanent status requires separate evidence.`);
+    print(
+      `Source ${owner}; ${n} currently available skills. Permanent status requires separate evidence.`
+    );
     return;
   }
   if (args.route === "organ_state") {
@@ -78,14 +101,18 @@ export default function main(command = ""): void {
       ["spleen_used", mySpleenUse()],
     ];
     for (const [metric, value] of values)
-      emit(s, {domain:"organs",subject:"organ/1",metric}, value, quiet);
+      emit(s, { domain: "organs", subject: "organ/1", metric }, value, quiet);
     print("Source consume; observed cached organ use. No diet was planned or executed.");
     return;
   }
   if (args.route === "relay_state") {
     const enabled = getProperty("donReport_relayCaptureEnabled");
-    emit(s, {domain:"relay",subject:"relay/1",metric:"capture_enabled"},
-      enabled === "" ? null : enabled === "true", quiet);
+    emit(
+      s,
+      { domain: "relay", subject: "relay/1", metric: "capture_enabled" },
+      enabled === "" ? null : enabled === "true",
+      quiet
+    );
     print("ChIT's original relay override remains untouched; capture defaults OFF.");
     return;
   }
@@ -96,8 +123,10 @@ export default function main(command = ""): void {
     return;
   }
   if (args.route === "item_value") {
-    if (args.arguments.length > 1 ||
-        (args.arguments.length === 1 && !/^(0|[1-9][0-9]*)$/.test(args.arguments[0]))) {
+    if (
+      args.arguments.length > 1 ||
+      (args.arguments.length === 1 && !/^(0|[1-9][0-9]*)$/.test(args.arguments[0]))
+    ) {
       print("Usage: item_value [minimum-meat] [--quiet|--diff|--print]", "red");
       return;
     }
