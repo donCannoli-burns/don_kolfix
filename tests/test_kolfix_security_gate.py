@@ -70,6 +70,15 @@ class SecurityGate(unittest.TestCase):
         rules = [f.rule for f in gate.scan_bytes(output.getvalue(), 'backup.zip')]
         self.assertIn('protected-path', rules)
 
+    def test_duplicate_blob_protected_path_not_hidden_by_safe_name(self):
+        # git rev-list --objects outputs only one sample name per blob SHA.
+        # Both paths deliberately share exactly the same blob content.
+        self.commit('innocuous.txt', b'exact duplicate bytes')
+        self.commit('settings/GLOBAL_aliases.txt', b'exact duplicate bytes')
+        results, _ = gate.inspect_objects(self.repo, ['HEAD'])
+        self.assertTrue(any(f.rule == 'protected-path' and
+                            f.path == 'settings/GLOBAL_aliases.txt' for f in results))
+
     def test_no_secret_leak_on_output(self):
         path = 'name-ghi_' + 'ABCDEF'*20
         result = gate.sanitized_path(path)
