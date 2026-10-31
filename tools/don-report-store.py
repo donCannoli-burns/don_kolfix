@@ -29,7 +29,7 @@ SUBJECT = re.compile(r"^[a-z][a-z0-9_]*/[1-9][0-9]*$")
 RECEIPT = re.compile(r"^[A-Za-z0-9_-]{1,80}$")
 DATE = re.compile(r"^[0-9]{8}$")
 TIME = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$")
-SECRET = re.compile(r"https?:|pwd\s*[:=]|password\s*[:=]|token\s*[:=]|cookie\s*[:=]|authorization\s*[:=]|@|[<>\r\n]", re.I)
+UNSAFE_TEXT_PATTERN = re.compile(r"https?:|pwd\s*[:=]|password\s*[:=]|token\s*[:=]|cookie\s*[:=]|authorization\s*[:=]|@|[<>\r\n]", re.I)
 
 
 class UnsafeReport(ValueError):
@@ -39,7 +39,7 @@ class UnsafeReport(ValueError):
 def valid_value(value):
     return (type(value) is bool or
             (type(value) is int and abs(value) <= 2**53 - 1) or
-            (type(value) is str and 0 < len(value) <= 160 and not SECRET.search(value)))
+            (type(value) is str and 0 < len(value) <= 160 and not UNSAFE_TEXT_PATTERN.search(value)))
 
 
 def validate(record):
@@ -66,7 +66,7 @@ def validate(record):
     if (record["state"] == "observed" and not valid_value(value)) or (record["state"] != "observed" and value is not None):
         raise UnsafeReport("non-observation value or unsafe observed data")
     reason, receipt = record["reason"], record["receiptId"]
-    if reason is not None and (type(reason) is not str or len(reason) > 160 or SECRET.search(reason)):
+    if reason is not None and (type(reason) is not str or len(reason) > 160 or UNSAFE_TEXT_PATTERN.search(reason)):
         raise UnsafeReport("unsafe reason")
     if receipt is not None and (type(receipt) is not str or not RECEIPT.fullmatch(receipt)):
         raise UnsafeReport("unsafe receipt id")
