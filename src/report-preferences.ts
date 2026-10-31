@@ -1,4 +1,5 @@
 import { getProperty, print, setProperty } from "kolmafia";
+
 import { DON_SOURCES } from "./report-contract";
 
 /**
@@ -14,9 +15,10 @@ export const REPORT_DEFAULTS: ReadonlyArray<readonly [string, string]> = [
   ["donReport_diffEnabled", "false"],
   ["donReport_printChanges", "false"],
   ["donReport_notifyDiff", "false"],
-  ...DON_SOURCES.map((source): readonly [string, string] =>
-    [`donReport_source_${source}`, "false"]
-  ),
+  ...DON_SOURCES.map((source): readonly [string, string] => [
+    `donReport_source_${source}`,
+    "false",
+  ]),
 ];
 
 export function initializeReportPreferences(): number {
