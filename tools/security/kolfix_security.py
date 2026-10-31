@@ -168,6 +168,19 @@ def inspect_objects(repo: Path, spec: list[str]) -> tuple[list[Finding], int]:
     findings: list[Finding] = []
     if len(rows) > MAX_OBJECTS:
         return [Finding("<outgoing-history>", "object-count-limit")], 0
+    # `rev-list --objects` names each blob once, even when the identical
+    # blob also appears under a protected path. Inspect changed path names
+    # independently, across every outgoing commit (including merge parents).
+    changed_paths = run_git(repo, "log", "--format=", "--name-only", "-z",
+                            "--no-renames", "--root", "-m", *spec).split(b"\0")
+    if len(changed_paths) > MAX_OBJECTS * 8:
+        return [Finding("<outgoing-history>", "path-count-limit")], 0
+    for raw_path in changed_paths:
+        if not raw_path:
+            continue
+        path = raw_path.decode("utf-8", "backslashreplace")
+        if SENSITIVE_PATH.search(path) or path.lower().endswith(RESTRICTED_EXT):
+            findings.append(Finding(path, "protected-path"))
     total = 0
     scanned = 0
     by_sha: dict[bytes, str] = {}
