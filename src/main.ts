@@ -17,7 +17,6 @@ import {
   showReportPreferences,
   verifyReportPreferences,
 } from "./report-preferences";
-
 import {
   initializeDonStatePreferences,
   showDonStatePreferences,
