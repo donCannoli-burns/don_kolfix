@@ -52,7 +52,7 @@ check("all state commands bypass legacy handlers", () => {
   assert.ok(position < main.indexOf("const propertyManager = new PropertiesManager()"));
 });
 check("broad session restore excludes Don State namespace", () => {
-  assert.match(main, /if \(pref\.startsWith\("donState_"\)\)/);
+  assert.match(main, /if \(pref\.startsWith\("donState_"\) \|\| pref\.startsWith\("donReport_"\)\)/);
 });
 check("no scheduled or gameplay execution in preference module", () => {
   assert.ok(!/\b(?:visitUrl|cliExecute|runChoice|adventure|adv1|buy|setAutoAttack)\s*\(/.test(src));

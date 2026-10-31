@@ -45,6 +45,22 @@ jobs:
           python3 tools/security/kolfix_security.py scan --index
           python3 tools/security/kolfix_security.py scan --revision HEAD
 
+  report-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned TypeScript
+        run: npm install --global typescript@5.8.3
+      - name: Compile pure Don Report contract
+        run: tsc --strict --target es2020 --lib es2020 --module commonjs --outDir .report-build src/report-contract.ts
+      - name: Test report addresses, source ownership, privacy, and conflict handling
+        run: node tests/report-contract.test.cjs
+      - name: Test atomic host receipt persistence and replay
+        run: python3 -m unittest discover -s tests -p 'test_don_report_store.py' -v
+
   lint:
     runs-on: ubuntu-latest
     steps:
