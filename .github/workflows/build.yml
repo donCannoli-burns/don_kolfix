@@ -37,6 +37,8 @@ jobs:
         run: tsc --strict --target es2020 --lib es2020 --module commonjs --outDir .report-build src/report-contract.ts
       - name: Test report addresses, source ownership, privacy, and conflict handling
         run: node tests/report-contract.test.cjs
+      - name: Test atomic host receipt persistence and replay
+        run: python3 -m unittest discover -s tests -p 'test_don_report_store.py' -v
 
   lint:
     runs-on: ubuntu-latest
