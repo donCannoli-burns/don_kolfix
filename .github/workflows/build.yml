@@ -55,11 +55,6 @@ jobs:
       - name: Install New Dependencies
         run: yarn install --immutable
 
-      - name: Preview main.ts formatting (temporary, no write)
-        run: |
-          echo "DONFMT_START:src/main.ts"
-          ./node_modules/.bin/prettier src/main.ts
-          echo "DONFMT_END:src/main.ts"
       - name: ESLint & Prettier
         run: yarn run lint
 
