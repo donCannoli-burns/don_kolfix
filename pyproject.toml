@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "don-kolfix-security"
+version = "0.1.2"
+description = "Optional fail-closed Git pre-push credential gate for don_kolfix"
+readme = "docs/security-gate.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{name = "donCannoli-burns contributors"}]
+keywords = ["git", "security", "pre-push", "kolmafia"]
+dependencies = []
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: Security",
+]
+
+[project.scripts]
+kolfix-security = "kolfix_security:main"
+
+[tool.setuptools]
+py-modules = ["kolfix_security"]
+
+[tool.setuptools.package-dir]
+"" = "tools/security"

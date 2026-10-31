@@ -4,6 +4,21 @@
 
 > **Important:** kolfix changes **KoLmafia preferences**, not your actual Kingdom of Loathing account state. Marking an unlock as owned does not grant it in-game. Some repair commands deliberately replace correct values with conservative or maximized ones. Review the commands before using them, especially in automation.
 
+## Optional security gate (plain Python 3; Conda optional)
+
+The [Don Kolfix Security Gate](docs/security-gate.md) is a **host-side Python 3.11+ standard-library utility**. You do **not** need Conda, pip, or third-party Python packages. It is optional but recommended: after installation its fail-closed Git `pre-push` hook is on by default. The KoLmafia diagnostic scrubber and outbound instrumentation are off by default; the advanced outbound proxy is not yet implemented.
+
+```bash
+# Run on your Linux host in this source checkout, NOT in KoLmafia's gCLI.
+python3 tools/security/kolfix_security.py install-hook
+python3 tools/security/kolfix_security.py status
+python3 tools/security/kolfix_security.py scan --index
+```
+
+**Zero-fuss option (pipx preferred, plain pip also supported):** from a source checkout use `pipx install .` and then `kolfix-security install-hook`. Use `python3 -m pip install .` inside a virtual environment if pipx isn't available. This installs the same standard-library scanner with a convenient command; **Conda is not required**. A GitHub-source one-liner will be available after these changes are merged (not yet published to PyPI). An existing hook should be switched with `kolfix-security rebind-hook`, not overwritten.
+
+Optional **Conda** users may instead run `conda env create -f tools/security/environment.yml` followed by `conda run -n don-kolfix-security python tools/security/kolfix_security.py install-hook`. All methods pin their selected Python interpreter; they do not require Conda activation during `git push`. See the [security documentation](docs/security-gate.md) for setup, the optional sudo lease helper, verification, and GitHub branch ruleset requirements.
+
 ## Installation
 
 ### KoLmafia GCLI (published build)

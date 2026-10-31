@@ -24,6 +24,27 @@ jobs:
       - name: Validate existing-installation safety with isolated fixtures
         run: node tests/install-mafia.test.cjs
 
+  security-credentials:
+    name: security-credentials
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run security gate regression tests (offline)
+        run: python3 -m unittest discover -s tests -p test_kolfix_security_gate.py -v
+      - name: Compile host utilities (no network or gameplay)
+        run: python3 -m py_compile tools/security/kolfix_security.py tools/security/kolfix_security_lease.py
+      - name: Scan committed tree and history for sensitive artifacts
+        run: |
+          python3 tools/security/kolfix_security.py scan --index
+          python3 tools/security/kolfix_security.py scan --revision HEAD
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +86,7 @@ jobs:
 
   push:
     runs-on: ubuntu-latest
-    needs: [build, lint]
+    needs: [build, lint, security-credentials]
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
