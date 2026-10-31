@@ -2073,10 +2073,45 @@ var import_kolmafia6 = require("kolmafia");
 var import_kolmafia5 = require("kolmafia");
 
 // src/main.ts
-var import_kolmafia8 = require("kolmafia");
+var import_kolmafia9 = require("kolmafia");
 
-// src/state-preferences.ts
+// src/report-preferences.ts
 var import_kolmafia7 = require("kolmafia");
+
+// src/report-contract.ts
+var DON_SOURCES = ["accountval", "philter", "greenbox", "consume", "chit", "excavator", "watersheep", "custom_ash"];
+
+// src/report-preferences.ts
+function _slicedToArray2(arr, i) {
+  return _arrayWithHoles2(arr) || _iterableToArrayLimit2(arr, i) || _unsupportedIterableToArray4(arr, i) || _nonIterableRest2();
+}
+function _nonIterableRest2() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function _iterableToArrayLimit2(arr, i) {
+  var _i = arr == null ? null : typeof Symbol != "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+  if (_i != null) {
+    var _arr = [], _n = !0, _d = !1, _s, _e;
+    try {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done) && (_arr.push(_s.value), !(i && _arr.length === i)); _n = !0)
+        ;
+    } catch (err) {
+      _d = !0, _e = err;
+    } finally {
+      try {
+        !_n && _i.return != null && _i.return();
+      } finally {
+        if (_d)
+          throw _e;
+      }
+    }
+    return _arr;
+  }
+}
+function _arrayWithHoles2(arr) {
+  if (Array.isArray(arr))
+    return arr;
+}
 function _createForOfIteratorHelper3(o, allowArrayLike) {
   var it = typeof Symbol != "undefined" && o[Symbol.iterator] || o["@@iterator"];
   if (!it) {
@@ -2086,8 +2121,8 @@ function _createForOfIteratorHelper3(o, allowArrayLike) {
       };
       return { s: F, n: function() {
         return i >= o.length ? { done: !0 } : { done: !1, value: o[i++] };
-      }, e: function(_e) {
-        throw _e;
+      }, e: function(_e2) {
+        throw _e2;
       }, f: F };
     }
     throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
@@ -2098,8 +2133,8 @@ function _createForOfIteratorHelper3(o, allowArrayLike) {
   }, n: function() {
     var step = it.next();
     return normalCompletion = step.done, step;
-  }, e: function(_e2) {
-    didErr = !0, err = _e2;
+  }, e: function(_e3) {
+    didErr = !0, err = _e3;
   }, f: function() {
     try {
       !normalCompletion && it.return != null && it.return();
@@ -2135,6 +2170,118 @@ function _arrayWithoutHoles(arr) {
     return _arrayLikeToArray4(arr);
 }
 function _arrayLikeToArray4(arr, len) {
+  (len == null || len > arr.length) && (len = arr.length);
+  for (var i = 0, arr2 = new Array(len); i < len; i++)
+    arr2[i] = arr[i];
+  return arr2;
+}
+var REPORT_DEFAULTS = [["donReport_schemaVersion", "1.0"], ["donReport_collectionEnabled", "false"], ["donReport_relayCaptureEnabled", "false"], ["donReport_recordEnabled", "false"], ["donReport_diffEnabled", "false"], ["donReport_printChanges", "false"], ["donReport_notifyDiff", "false"]].concat(_toConsumableArray(DON_SOURCES.map(function(source) {
+  return ["donReport_source_".concat(source), "false"];
+})));
+function initializeReportPreferences() {
+  var created = 0, _iterator = _createForOfIteratorHelper3(REPORT_DEFAULTS), _step;
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+      var _step$value = _slicedToArray2(_step.value, 2), key = _step$value[0], initial = _step$value[1];
+      (0, import_kolmafia7.getProperty)(key) === "" && ((0, import_kolmafia7.setProperty)(key, initial), created++);
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
+  return (0, import_kolmafia7.print)("Don Report defaults initialized: ".concat(created, "."), "green"), (0, import_kolmafia7.print)("All capture and recording disabled by default. No hooks installed.", "gray"), created;
+}
+function verifyReportPreferences() {
+  var invalid = [], _iterator2 = _createForOfIteratorHelper3(REPORT_DEFAULTS), _step2;
+  try {
+    for (_iterator2.s(); !(_step2 = _iterator2.n()).done; ) {
+      var _step2$value = _slicedToArray2(_step2.value, 2), key = _step2$value[0], initial = _step2$value[1], actual = (0, import_kolmafia7.getProperty)(key);
+      key === "donReport_schemaVersion" ? actual !== initial && invalid.push(key) : actual !== "false" && actual !== "true" && invalid.push(key);
+    }
+  } catch (err) {
+    _iterator2.e(err);
+  } finally {
+    _iterator2.f();
+  }
+  return invalid.length > 0 ? ((0, import_kolmafia7.print)("Don Report preferences NEED REVIEW: ".concat(invalid.join(", ")), "red"), !1) : ((0, import_kolmafia7.print)("Don Report toggles valid (not proof that any collector is active).", "green"), !0);
+}
+function showReportPreferences() {
+  (0, import_kolmafia7.print)("Don Report v1 canonical index configuration \u2014 NO live writer", "blue");
+  var _iterator3 = _createForOfIteratorHelper3(REPORT_DEFAULTS), _step3;
+  try {
+    for (_iterator3.s(); !(_step3 = _iterator3.n()).done; ) {
+      var _step3$value = _slicedToArray2(_step3.value, 1), key = _step3$value[0], current = (0, import_kolmafia7.getProperty)(key);
+      (0, import_kolmafia7.print)("".concat(key, " = ").concat(current === "" ? "(unset)" : current));
+    }
+  } catch (err) {
+    _iterator3.e(err);
+  } finally {
+    _iterator3.f();
+  }
+  (0, import_kolmafia7.print)("Sources remain independent; multiple claims cannot overwrite canonical nodes.", "orange");
+}
+
+// src/state-preferences.ts
+var import_kolmafia8 = require("kolmafia");
+function _createForOfIteratorHelper4(o, allowArrayLike) {
+  var it = typeof Symbol != "undefined" && o[Symbol.iterator] || o["@@iterator"];
+  if (!it) {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray5(o)) || allowArrayLike && o && typeof o.length == "number") {
+      it && (o = it);
+      var i = 0, F = function() {
+      };
+      return { s: F, n: function() {
+        return i >= o.length ? { done: !0 } : { done: !1, value: o[i++] };
+      }, e: function(_e) {
+        throw _e;
+      }, f: F };
+    }
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  var normalCompletion = !0, didErr = !1, err;
+  return { s: function() {
+    it = it.call(o);
+  }, n: function() {
+    var step = it.next();
+    return normalCompletion = step.done, step;
+  }, e: function(_e2) {
+    didErr = !0, err = _e2;
+  }, f: function() {
+    try {
+      !normalCompletion && it.return != null && it.return();
+    } finally {
+      if (didErr)
+        throw err;
+    }
+  } };
+}
+function _toConsumableArray2(arr) {
+  return _arrayWithoutHoles2(arr) || _iterableToArray2(arr) || _unsupportedIterableToArray5(arr) || _nonIterableSpread2();
+}
+function _nonIterableSpread2() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function _unsupportedIterableToArray5(o, minLen) {
+  if (!!o) {
+    if (typeof o == "string")
+      return _arrayLikeToArray5(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor && (n = o.constructor.name), n === "Map" || n === "Set")
+      return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
+      return _arrayLikeToArray5(o, minLen);
+  }
+}
+function _iterableToArray2(iter) {
+  if (typeof Symbol != "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null)
+    return Array.from(iter);
+}
+function _arrayWithoutHoles2(arr) {
+  if (Array.isArray(arr))
+    return _arrayLikeToArray5(arr);
+}
+function _arrayLikeToArray5(arr, len) {
   (len == null || len > arr.length) && (len = arr.length);
   for (var i = 0, arr2 = new Array(len); i < len; i++)
     arr2[i] = arr[i];
@@ -2215,15 +2362,15 @@ var DON_STATE_SCHEMA_VERSION = "0.2", DON_STATE_FLAGS = ["start_day", "setup_l1"
   defaultValue: "",
   kind: "timestamp",
   purpose: "projection"
-}].concat(_toConsumableArray(DON_STATE_FLAGS.map(function(flag) {
+}].concat(_toConsumableArray2(DON_STATE_FLAGS.map(function(flag) {
   return {
     key: "donState_flag_".concat(flag),
     defaultValue: "0",
     kind: "flag",
     purpose: "projection"
   };
-})), _toConsumableArray([1, 2, 3, 4, 5].reduce(function(acc, n) {
-  return [].concat(_toConsumableArray(acc), [{
+})), _toConsumableArray2([1, 2, 3, 4, 5].reduce(function(acc, n) {
+  return [].concat(_toConsumableArray2(acc), [{
     key: "donState_discrepancy_".concat(n),
     defaultValue: "false",
     kind: "boolean",
@@ -2264,7 +2411,7 @@ var DON_STATE_SCHEMA_VERSION = "0.2", DON_STATE_FLAGS = ["start_day", "setup_l1"
   defaultValue: "unknown",
   kind: "evidence",
   purpose: "calendar"
-}], DON_STATE_PREFERENCES = [].concat(policy, scope, _toConsumableArray(journalProjection), calendar);
+}], DON_STATE_PREFERENCES = [].concat(policy, scope, _toConsumableArray2(journalProjection), calendar);
 function isPhase(value) {
   return value === "" || DON_STATE_FLAGS.some(function(flag) {
     return flag === value;
@@ -2298,24 +2445,24 @@ function validValue(pref, value) {
   }
 }
 function initializeDonStatePreferences() {
-  var initialized = 0, _iterator = _createForOfIteratorHelper3(DON_STATE_PREFERENCES), _step;
+  var initialized = 0, _iterator = _createForOfIteratorHelper4(DON_STATE_PREFERENCES), _step;
   try {
     for (_iterator.s(); !(_step = _iterator.n()).done; ) {
       var pref = _step.value;
-      pref.defaultValue !== "" && (0, import_kolmafia7.getProperty)(pref.key) === "" && ((0, import_kolmafia7.setProperty)(pref.key, pref.defaultValue), initialized += 1);
+      pref.defaultValue !== "" && (0, import_kolmafia8.getProperty)(pref.key) === "" && ((0, import_kolmafia8.setProperty)(pref.key, pref.defaultValue), initialized += 1);
     }
   } catch (err) {
     _iterator.e(err);
   } finally {
     _iterator.f();
   }
-  return (0, import_kolmafia7.print)("Don State v0.2 defaults initialized: ".concat(initialized, " missing values."), "green"), (0, import_kolmafia7.print)("No game actions, phase transitions, ascension hooks, or reset performed.", "gray"), initialized;
+  return (0, import_kolmafia8.print)("Don State v0.2 defaults initialized: ".concat(initialized, " missing values."), "green"), (0, import_kolmafia8.print)("No game actions, phase transitions, ascension hooks, or reset performed.", "gray"), initialized;
 }
 function verifyDonStatePreferences() {
-  var invalid = [], _iterator2 = _createForOfIteratorHelper3(DON_STATE_PREFERENCES), _step2;
+  var invalid = [], _iterator2 = _createForOfIteratorHelper4(DON_STATE_PREFERENCES), _step2;
   try {
     for (_iterator2.s(); !(_step2 = _iterator2.n()).done; ) {
-      var pref = _step2.value, raw = (0, import_kolmafia7.getProperty)(pref.key);
+      var pref = _step2.value, raw = (0, import_kolmafia8.getProperty)(pref.key);
       raw === "" && pref.defaultValue === "" || validValue(pref, raw) || invalid.push(pref.key);
     }
   } catch (err) {
@@ -2323,20 +2470,20 @@ function verifyDonStatePreferences() {
   } finally {
     _iterator2.f();
   }
-  var player = (0, import_kolmafia7.getProperty)("donState_scopePlayerId"), day = (0, import_kolmafia7.getProperty)("donState_scopeDay"), ascensions = (0, import_kolmafia7.getProperty)("donState_scopeAscensions"), hasActiveFlag = DON_STATE_FLAGS.some(function(flag) {
-    return (0, import_kolmafia7.getProperty)("donState_flag_".concat(flag)) !== "0" && (0, import_kolmafia7.getProperty)("donState_flag_".concat(flag)) !== "";
+  var player = (0, import_kolmafia8.getProperty)("donState_scopePlayerId"), day = (0, import_kolmafia8.getProperty)("donState_scopeDay"), ascensions = (0, import_kolmafia8.getProperty)("donState_scopeAscensions"), hasActiveFlag = DON_STATE_FLAGS.some(function(flag) {
+    return (0, import_kolmafia8.getProperty)("donState_flag_".concat(flag)) !== "0" && (0, import_kolmafia8.getProperty)("donState_flag_".concat(flag)) !== "";
   });
-  return hasActiveFlag && (!/^[0-9]{1,12}$/.test(player) || !/^[0-9]{8}$/.test(day) || !isNonnegativeInteger(ascensions)) && invalid.push("donState_scope_incomplete_for_active_flags"), (0, import_kolmafia7.getProperty)("donState_autoFallback") === "true" && (0, import_kolmafia7.getProperty)("donState_nextFallbackFlag") === "" && invalid.push("donState_nextFallbackFlag_missing"), (0, import_kolmafia7.getProperty)("donState_nextFallback") === "true" && (0, import_kolmafia7.getProperty)("donState_autoFallback") !== "true" && invalid.push("donState_nextFallback_without_policy"), invalid.length ? ((0, import_kolmafia7.print)("Don State preferences NEED REVIEW: ".concat(invalid.join(", ")), "red"), !1) : ((0, import_kolmafia7.print)("Don State preference syntax valid. Cached flags are NOT verified game evidence.", "green"), !0);
+  return hasActiveFlag && (!/^[0-9]{1,12}$/.test(player) || !/^[0-9]{8}$/.test(day) || !isNonnegativeInteger(ascensions)) && invalid.push("donState_scope_incomplete_for_active_flags"), (0, import_kolmafia8.getProperty)("donState_autoFallback") === "true" && (0, import_kolmafia8.getProperty)("donState_nextFallbackFlag") === "" && invalid.push("donState_nextFallbackFlag_missing"), (0, import_kolmafia8.getProperty)("donState_nextFallback") === "true" && (0, import_kolmafia8.getProperty)("donState_autoFallback") !== "true" && invalid.push("donState_nextFallback_without_policy"), invalid.length ? ((0, import_kolmafia8.print)("Don State preferences NEED REVIEW: ".concat(invalid.join(", ")), "red"), !1) : ((0, import_kolmafia8.print)("Don State preference syntax valid. Cached flags are NOT verified game evidence.", "green"), !0);
 }
 function showDonStatePreferences() {
-  (0, import_kolmafia7.print)("Don State Engine v0.2 \u2014 preference view (NOT journal authority)", "blue");
-  var _iterator3 = _createForOfIteratorHelper3(DON_STATE_PREFERENCES), _step3;
+  (0, import_kolmafia8.print)("Don State Engine v0.2 \u2014 preference view (NOT journal authority)", "blue");
+  var _iterator3 = _createForOfIteratorHelper4(DON_STATE_PREFERENCES), _step3;
   try {
     for (_iterator3.s(); !(_step3 = _iterator3.n()).done; ) {
       var pref = _step3.value;
       if (pref.purpose === "policy" || pref.purpose === "scope" || pref.purpose === "calendar") {
-        var actual = (0, import_kolmafia7.getProperty)(pref.key);
-        (0, import_kolmafia7.print)("".concat(pref.key, " = ").concat(actual === "" ? "(unset)" : actual));
+        var actual = (0, import_kolmafia8.getProperty)(pref.key);
+        (0, import_kolmafia8.print)("".concat(pref.key, " = ").concat(actual === "" ? "(unset)" : actual));
       }
     }
   } catch (err) {
@@ -2345,20 +2492,20 @@ function showDonStatePreferences() {
     _iterator3.f();
   }
   var stages = DON_STATE_FLAGS.map(function(flag) {
-    return "".concat(flag, ":").concat((0, import_kolmafia7.getProperty)("donState_flag_".concat(flag)) || "unset");
+    return "".concat(flag, ":").concat((0, import_kolmafia8.getProperty)("donState_flag_".concat(flag)) || "unset");
   });
-  (0, import_kolmafia7.print)("Projected flags: ".concat(stages.join(" | "))), (0, import_kolmafia7.print)("0=pending, 1=started, 2=finished, 3=skipped, 4=failed, 5=reconcile"), (0, import_kolmafia7.print)("Warning: journal receipts, not writable preferences, must prove completion.", "orange");
+  (0, import_kolmafia8.print)("Projected flags: ".concat(stages.join(" | "))), (0, import_kolmafia8.print)("0=pending, 1=started, 2=finished, 3=skipped, 4=failed, 5=reconcile"), (0, import_kolmafia8.print)("Warning: journal receipts, not writable preferences, must prove completion.", "orange");
 }
 
 // src/main.ts
 var _templateObject, _templateObject2, _templateObject3;
-function _slicedToArray2(arr, i) {
-  return _arrayWithHoles2(arr) || _iterableToArrayLimit2(arr, i) || _unsupportedIterableToArray5(arr, i) || _nonIterableRest2();
+function _slicedToArray3(arr, i) {
+  return _arrayWithHoles3(arr) || _iterableToArrayLimit3(arr, i) || _unsupportedIterableToArray6(arr, i) || _nonIterableRest3();
 }
-function _nonIterableRest2() {
+function _nonIterableRest3() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
-function _iterableToArrayLimit2(arr, i) {
+function _iterableToArrayLimit3(arr, i) {
   var _i = arr == null ? null : typeof Symbol != "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
   if (_i != null) {
     var _arr = [], _n = !0, _d = !1, _s, _e;
@@ -2378,17 +2525,17 @@ function _iterableToArrayLimit2(arr, i) {
     return _arr;
   }
 }
-function _arrayWithHoles2(arr) {
+function _arrayWithHoles3(arr) {
   if (Array.isArray(arr))
     return arr;
 }
 function _taggedTemplateLiteral(strings, raw) {
   return raw || (raw = strings.slice(0)), Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } }));
 }
-function _createForOfIteratorHelper4(o, allowArrayLike) {
+function _createForOfIteratorHelper5(o, allowArrayLike) {
   var it = typeof Symbol != "undefined" && o[Symbol.iterator] || o["@@iterator"];
   if (!it) {
-    if (Array.isArray(o) || (it = _unsupportedIterableToArray5(o)) || allowArrayLike && o && typeof o.length == "number") {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray6(o)) || allowArrayLike && o && typeof o.length == "number") {
       it && (o = it);
       var i = 0, F = function() {
       };
@@ -2417,18 +2564,18 @@ function _createForOfIteratorHelper4(o, allowArrayLike) {
     }
   } };
 }
-function _unsupportedIterableToArray5(o, minLen) {
+function _unsupportedIterableToArray6(o, minLen) {
   if (!!o) {
     if (typeof o == "string")
-      return _arrayLikeToArray5(o, minLen);
+      return _arrayLikeToArray6(o, minLen);
     var n = Object.prototype.toString.call(o).slice(8, -1);
     if (n === "Object" && o.constructor && (n = o.constructor.name), n === "Map" || n === "Set")
       return Array.from(o);
     if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
-      return _arrayLikeToArray5(o, minLen);
+      return _arrayLikeToArray6(o, minLen);
   }
 }
-function _arrayLikeToArray5(arr, len) {
+function _arrayLikeToArray6(arr, len) {
   (len == null || len > arr.length) && (len = arr.length);
   for (var i = 0, arr2 = new Array(len); i < len; i++)
     arr2[i] = arr[i];
@@ -2546,6 +2693,18 @@ var config = Args.create("kolfix", "For updating important KoLmafia settings", {
   stateVerify: Args.flag({
     help: "Validate Don State v0.2 preferences without changing them",
     setting: ""
+  }),
+  reportStatus: Args.flag({
+    help: "Show Don Report canonical index policies and source toggles (read-only)",
+    setting: ""
+  }),
+  reportInit: Args.flag({
+    help: "Initialize Don Report source, relay, diff and record toggles OFF",
+    setting: ""
+  }),
+  reportVerify: Args.flag({
+    help: "Validate Don Report v1 policy toggles without running collectors",
+    setting: ""
   })
 }), places = [
   "bathole",
@@ -2595,8 +2754,12 @@ function main() {
     config.stateInit && initializeDonStatePreferences(), config.stateVerify && verifyDonStatePreferences(), config.stateStatus && showDonStatePreferences();
     return;
   }
+  if (config.reportStatus || config.reportInit || config.reportVerify) {
+    config.reportInit && initializeReportPreferences(), config.reportVerify && verifyReportPreferences(), config.reportStatus && showReportPreferences();
+    return;
+  }
   if (config.backupStatus) {
-    (0, import_kolmafia8.cliExecute)("call kolfix_backup_status.ash") || (0, import_kolmafia8.print)("Missing kolfix_backup_status.ash; install the GCLI reader in scripts/", "red");
+    (0, import_kolmafia9.cliExecute)("call kolfix_backup_status.ash") || (0, import_kolmafia9.print)("Missing kolfix_backup_status.ash; install the GCLI reader in scripts/", "red");
     return;
   }
   var propertyManager = new PropertiesManager();
@@ -2605,12 +2768,12 @@ function main() {
   });
   try {
     if (config.auto) {
-      (0, import_kolmafia8.print)("Checking properties", color), (0, import_kolmafia8.print)("Touring the Kingdom", color);
-      var _iterator = _createForOfIteratorHelper4(places), _step;
+      (0, import_kolmafia9.print)("Checking properties", color), (0, import_kolmafia9.print)("Touring the Kingdom", color);
+      var _iterator = _createForOfIteratorHelper5(places), _step;
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done; ) {
           var place = _step.value;
-          (0, import_kolmafia8.visitUrl)(place.includes(".php") ? place : "place.php?whichplace=".concat(place));
+          (0, import_kolmafia9.visitUrl)(place.includes(".php") ? place : "place.php?whichplace=".concat(place));
         }
       } catch (err) {
         _iterator.e(err);
@@ -2618,30 +2781,30 @@ function main() {
         _iterator.f();
       }
       $items(_templateObject || (_templateObject = _taggedTemplateLiteral(["Cincho de Mayo, designer sweatpants, Powerful Glove"]))).forEach(function(i) {
-        return (0, import_kolmafia8.visitUrl)("desc_item.php?whichitem=".concat(i.descid));
+        return (0, import_kolmafia9.visitUrl)("desc_item.php?whichitem=".concat(i.descid));
       });
-      var locketResponse = (0, import_kolmafia8.visitUrl)("inventory.php?reminisce=1", !1);
+      var locketResponse = (0, import_kolmafia9.visitUrl)("inventory.php?reminisce=1", !1);
       if (locketResponse.includes("You don't want to reminisce any more today.")) {
         var oldLocket = get("_locketMonstersFought").split(","), newLocket = oldLocket.concat(new Array(3).fill(0)).slice(0, 3);
         _set("_locketMonstersFought", newLocket);
       }
-      if ((0, import_kolmafia8.visitUrl)("campground.php?action=terminal"), (0, import_kolmafia8.handlingChoice)()) {
+      if ((0, import_kolmafia9.visitUrl)("campground.php?action=terminal"), (0, import_kolmafia9.handlingChoice)()) {
         for (var _i = 0, _arr = ["status", "enhance", "enquiry", "educate", "extrude"]; _i < _arr.length; _i++) {
           var text = _arr[_i];
-          (0, import_kolmafia8.visitUrl)("choice.php?pwd&whichchoice=1191&option=1&input=".concat(text));
+          (0, import_kolmafia9.visitUrl)("choice.php?pwd&whichchoice=1191&option=1&input=".concat(text));
         }
-        (0, import_kolmafia8.visitUrl)("main.php");
+        (0, import_kolmafia9.visitUrl)("main.php");
       }
-      (0, import_kolmafia8.visitUrl)("desc_effect.php?whicheffect=".concat($effect(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral(["Puzzle Champ"]))).descid)), (0, import_kolmafia8.print)("Checking recipes", color);
+      (0, import_kolmafia9.visitUrl)("desc_effect.php?whicheffect=".concat($effect(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral(["Puzzle Champ"]))).descid)), (0, import_kolmafia9.print)("Checking recipes", color);
       for (var _i2 = 0, _arr2 = ["cocktail", "combine", "cook", "multi", "smith"]; _i2 < _arr2.length; _i2++) {
         var craft = _arr2[_i2];
-        (0, import_kolmafia8.visitUrl)("craft.php?mode=discoveries&what=".concat(craft));
+        (0, import_kolmafia9.visitUrl)("craft.php?mode=discoveries&what=".concat(craft));
       }
     }
-    if ((config.cleaver || config.disableAll) && ((0, import_kolmafia8.print)("Setting June Cleaver to safe values", color), (0, import_kolmafia8.visitUrl)("desc_item.php?whichitem=".concat($item(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral(["June cleaver"]))).descid)), _set("_juneCleaverEncounters", 10), _set("_juneCleaverSkips", 5), _set("_juneCleaverFightsLeft", 30)), (config.disableLegendaryPizzas || config.disableAll) && ((0, import_kolmafia8.print)("Setting all Cookbookbat legendary pizzas as eaten this lifetime", color), _set("calzoneOfLegendEaten", !0), _set("deepDishOfLegendEaten", !0), _set("pizzaOfLegendEaten", !0)), (config.disableLocket || config.disableAll) && _set("_locketMonstersFought", "0,0,0"), (config.disableShotglass || config.disableAll) && _set("_mimeArmyShotglassUsed", !0), (config.disableSausageGoblin || config.disableAll) && _set("_lastSausageMonsterTurn", Number.MAX_SAFE_INTEGER), (config.disableShockingLick || config.disableAll) && _set("shockingLickCharges", 0), (config.disableCombatSkills || config.disableAll) && (_set("_chestXRayUsed", 3), _set("_drunkPygmyBanishes", 11), _set("_feelHatredUsed", 3), _set("_feelLostUsed", 3), _set("_firedJokestersGun", !0), _set("_gingerbreadMobHitUsed", !0), _set("_glarkCableUses", 5), _set("_humanMuskUses", 3), _set("_kgbTranquilizerDartUses", 3), _set("_latteBanishUsed", !0), _set("_macrometeoriteUses", 10), _set("_mafiaMiddleFingerRingUsed", !0), _set("_missileLauncherUsed", !0), _set("_monstersMapped", 3), _set("_navelRunaways", 3), _set("_reflexHammerUsed", 3), _set("_saberForceUses", 5), _set("_shatteringPunchUsed", 3), _set("_snokebombUsed", 3), _set("_steelyEyedSquintUsed", !0), _set("_stinkyCheeseBanisherUsed", !0), _set("_usedReplicaBatoomerang", 3), _set("_vmaskBanisherUsed", !0)), config.session) {
-      var logs = (0, import_kolmafia8.sessionLogs)(1);
+    if ((config.cleaver || config.disableAll) && ((0, import_kolmafia9.print)("Setting June Cleaver to safe values", color), (0, import_kolmafia9.visitUrl)("desc_item.php?whichitem=".concat($item(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral(["June cleaver"]))).descid)), _set("_juneCleaverEncounters", 10), _set("_juneCleaverSkips", 5), _set("_juneCleaverFightsLeft", 30)), (config.disableLegendaryPizzas || config.disableAll) && ((0, import_kolmafia9.print)("Setting all Cookbookbat legendary pizzas as eaten this lifetime", color), _set("calzoneOfLegendEaten", !0), _set("deepDishOfLegendEaten", !0), _set("pizzaOfLegendEaten", !0)), (config.disableLocket || config.disableAll) && _set("_locketMonstersFought", "0,0,0"), (config.disableShotglass || config.disableAll) && _set("_mimeArmyShotglassUsed", !0), (config.disableSausageGoblin || config.disableAll) && _set("_lastSausageMonsterTurn", Number.MAX_SAFE_INTEGER), (config.disableShockingLick || config.disableAll) && _set("shockingLickCharges", 0), (config.disableCombatSkills || config.disableAll) && (_set("_chestXRayUsed", 3), _set("_drunkPygmyBanishes", 11), _set("_feelHatredUsed", 3), _set("_feelLostUsed", 3), _set("_firedJokestersGun", !0), _set("_gingerbreadMobHitUsed", !0), _set("_glarkCableUses", 5), _set("_humanMuskUses", 3), _set("_kgbTranquilizerDartUses", 3), _set("_latteBanishUsed", !0), _set("_macrometeoriteUses", 10), _set("_mafiaMiddleFingerRingUsed", !0), _set("_missileLauncherUsed", !0), _set("_monstersMapped", 3), _set("_navelRunaways", 3), _set("_reflexHammerUsed", 3), _set("_saberForceUses", 5), _set("_shatteringPunchUsed", 3), _set("_snokebombUsed", 3), _set("_steelyEyedSquintUsed", !0), _set("_stinkyCheeseBanisherUsed", !0), _set("_usedReplicaBatoomerang", 3), _set("_vmaskBanisherUsed", !0)), config.session) {
+      var logs = (0, import_kolmafia9.sessionLogs)(1);
       if (logs.length > 0) {
-        var prefs = /* @__PURE__ */ new Map(), prefRegex = /^Preference (.+?) changed from (?:.*?) to (.*)$/, startedSession = !1, username = (0, import_kolmafia8.myName)(), _iterator2 = _createForOfIteratorHelper4(logs[0].split(/[\n\r]+/)), _step2;
+        var prefs = /* @__PURE__ */ new Map(), prefRegex = /^Preference (.+?) changed from (?:.*?) to (.*)$/, startedSession = !1, username = (0, import_kolmafia9.myName)(), _iterator2 = _createForOfIteratorHelper5(logs[0].split(/[\n\r]+/)), _step2;
         try {
           for (_iterator2.s(); !(_step2 = _iterator2.n()).done; ) {
             var line = _step2.value;
@@ -2659,15 +2822,15 @@ function main() {
         } finally {
           _iterator2.f();
         }
-        var _iterator3 = _createForOfIteratorHelper4(prefs), _step3;
+        var _iterator3 = _createForOfIteratorHelper5(prefs), _step3;
         try {
           for (_iterator3.s(); !(_step3 = _iterator3.n()).done; ) {
-            var _step3$value = _slicedToArray2(_step3.value, 2), pref = _step3$value[0], value = _step3$value[1];
-            if (pref.startsWith("donState_")) {
-              (0, import_kolmafia8.print)("Skipping Don State projection during session recovery: ".concat(pref), "orange");
+            var _step3$value = _slicedToArray3(_step3.value, 2), pref = _step3$value[0], value = _step3$value[1];
+            if (pref.startsWith("donState_") || pref.startsWith("donReport_")) {
+              (0, import_kolmafia9.print)("Skipping Don State projection during session recovery: ".concat(pref), "orange");
               continue;
             }
-            (0, import_kolmafia8.setProperty)(pref, value);
+            (0, import_kolmafia9.setProperty)(pref, value);
           }
         } catch (err) {
           _iterator3.e(err);
@@ -2676,20 +2839,20 @@ function main() {
         }
       }
     }
-    (config.auto || config.yetiCold) && ((0, import_kolmafia8.setProperty)("choiceAdventure1560", "2"), (0, import_kolmafia8.print)("Cooler Yeti choice 1560: option 2 (impossibly cold next drink)", color));
+    (config.auto || config.yetiCold) && ((0, import_kolmafia9.setProperty)("choiceAdventure1560", "2"), (0, import_kolmafia9.print)("Cooler Yeti choice 1560: option 2 (impossibly cold next drink)", color));
     var toggle = function(prop2) {
       return _set(prop2, config.maxAll || !get(prop2));
     };
-    if ((config.gingerbread || config.maxAll) && ((0, import_kolmafia8.print)("".concat(config.maxAll ? "Unlocking" : "Toggling", " Gingerbread City permanent unlock and wall-thickening"), color), toggle("gingerbreadCityAvailable"), toggle("gingerExtraAdventures")), config.glitch && _set("glitchItemImplementationCount", config.glitch), (config.love || config.maxAll) && ((0, import_kolmafia8.print)("".concat(config.maxAll ? "Unlocking" : "Toggling", " Tunnel of L.O.V.E."), color), toggle("loveTunnelAvailable")), (config.ltt || config.maxAll) && ((0, import_kolmafia8.print)("".concat(config.maxAll ? "Unlocking" : "Toggling", " LT&T"), color), toggle("telegraphOfficeAvailable")), config.max || config.maxAll) {
+    if ((config.gingerbread || config.maxAll) && ((0, import_kolmafia9.print)("".concat(config.maxAll ? "Unlocking" : "Toggling", " Gingerbread City permanent unlock and wall-thickening"), color), toggle("gingerbreadCityAvailable"), toggle("gingerExtraAdventures")), config.glitch && _set("glitchItemImplementationCount", config.glitch), (config.love || config.maxAll) && ((0, import_kolmafia9.print)("".concat(config.maxAll ? "Unlocking" : "Toggling", " Tunnel of L.O.V.E."), color), toggle("loveTunnelAvailable")), (config.ltt || config.maxAll) && ((0, import_kolmafia9.print)("".concat(config.maxAll ? "Unlocking" : "Toggling", " LT&T"), color), toggle("telegraphOfficeAvailable")), config.max || config.maxAll) {
       var _config$numberology, _config$pool;
       config.numberology = (_config$numberology = config.numberology) !== null && _config$numberology !== void 0 ? _config$numberology : 5, config.pool = (_config$pool = config.pool) !== null && _config$pool !== void 0 ? _config$pool : 25;
     }
-    config.maximizer && ((0, import_kolmafia8.printHtml)("Resetting maximizer history, <a color=orange>don't forget to restart KoLmafia</a>"), _set("maximizerMRUList", (0, import_kolmafia8.propertyDefaultValue)("maximizerMRUList"))), config.numberology && _set("skillLevel144", config.numberology), config.pool && _set("poolSharkCount", config.pool), config.popups && _set("suppressNegativeStatusPopup", !get("suppressNegativeStatusPopup", !1));
+    config.maximizer && ((0, import_kolmafia9.printHtml)("Resetting maximizer history, <a color=orange>don't forget to restart KoLmafia</a>"), _set("maximizerMRUList", (0, import_kolmafia9.propertyDefaultValue)("maximizerMRUList"))), config.numberology && _set("skillLevel144", config.numberology), config.pool && _set("poolSharkCount", config.pool), config.popups && _set("suppressNegativeStatusPopup", !get("suppressNegativeStatusPopup", !1));
     var warn = function(key, value2) {
-      (0, import_kolmafia8.print)("Warning: ".concat(key, " ").concat(value2, " is not recommended, red"));
+      (0, import_kolmafia9.print)("Warning: ".concat(key, " ").concat(value2, " is not recommended, red"));
     };
     if (config.mall && (config.mall > 25e4 && warn("autoBuyPriceLimit", config.mall), _set("autoBuyPriceLimit", config.mall)), config.voa && (config.voa > 1e4 && warn("valueOfAdventure", config.voa), _set("valueOfAdventure", config.voa)), config.recommend) {
-      (0, import_kolmafia8.printHtml)(["Recommended properties to inspect", "Property names and values case sensitive when being set otherwise they may not work.", "Use the command <b>prefref property</b> to check values.", 'Use the commmand <b>set caseSensitiveProperty = "new value"</b> to change it.', ""].join("<br>"));
+      (0, import_kolmafia9.printHtml)(["Recommended properties to inspect", "Property names and values case sensitive when being set otherwise they may not work.", "Use the command <b>prefref property</b> to check values.", 'Use the commmand <b>set caseSensitiveProperty = "new value"</b> to change it.', ""].join("<br>"));
       for (var props = {
         battleAction: {
           msg: "controls how to handle combat",
@@ -2718,14 +2881,14 @@ function main() {
           rec: "true"
         }
       }, _i3 = 0, _Object$entries = Object.entries(props); _i3 < _Object$entries.length; _i3++) {
-        var _val$rec, _Object$entries$_i = _slicedToArray2(_Object$entries[_i3], 2), prop = _Object$entries$_i[0], val = _Object$entries$_i[1], _warn = val.rec && ((_val$rec = val.rec) === null || _val$rec === void 0 ? void 0 : _val$rec.toString()) !== get(prop).toString();
-        (0, import_kolmafia8.printHtml)("<b>".concat(prop, "</b> ").concat(val.msg, ".").concat(val.rec ? " Recommend: <b>".concat(val.rec, "</b>") : "", " Currently: ").concat(_warn ? '<a color="red">' : "", "<b>").concat(get(prop), "</b>").concat(_warn ? "</a>" : ""));
+        var _val$rec, _Object$entries$_i = _slicedToArray3(_Object$entries[_i3], 2), prop = _Object$entries$_i[0], val = _Object$entries$_i[1], _warn = val.rec && ((_val$rec = val.rec) === null || _val$rec === void 0 ? void 0 : _val$rec.toString()) !== get(prop).toString();
+        (0, import_kolmafia9.printHtml)("<b>".concat(prop, "</b> ").concat(val.msg, ".").concat(val.rec ? " Recommend: <b>".concat(val.rec, "</b>") : "", " Currently: ").concat(_warn ? '<a color="red">' : "", "<b>").concat(get(prop), "</b>").concat(_warn ? "</a>" : ""));
       }
     }
-    (0, import_kolmafia8.print)("Presto fixo! All done.", color);
+    (0, import_kolmafia9.print)("Presto fixo! All done.", color);
   } catch (err) {
     var _match = "".concat(err).match(/Bad item value: (.+)/);
-    _match && ((0, import_kolmafia8.print)("Using an outdated version of KoLmafia that doesn't know about ".concat(_match[1], "?"), "red"), (0, import_kolmafia8.printHtml)("<a href=https://github.com/kolmafia/kolmafia/releases>Click here</a> to get the latest release"));
+    _match && ((0, import_kolmafia9.print)("Using an outdated version of KoLmafia that doesn't know about ".concat(_match[1], "?"), "red"), (0, import_kolmafia9.printHtml)("<a href=https://github.com/kolmafia/kolmafia/releases>Click here</a> to get the latest release"));
   } finally {
     propertyManager.resetAll();
   }
