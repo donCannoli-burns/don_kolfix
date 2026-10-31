@@ -14,17 +14,17 @@ import {
   mySpleenUse,
   print,
   Skill,
-  toInt,
   todayToString,
+  toInt,
 } from "kolmafia";
 
 import {
   DON_REPORT_ROUTES,
-  nodeAddress,
-  parseDonReportCommand,
   type DonNode,
   type DonScope,
   type DonValue,
+  nodeAddress,
+  parseDonReportCommand,
 } from "./report-contract";
 
 function emit(scope: DonScope, node: DonNode, value: DonValue, quiet: boolean): void {
