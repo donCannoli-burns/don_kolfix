@@ -24,6 +24,20 @@ jobs:
       - name: Validate existing-installation safety with isolated fixtures
         run: node tests/install-mafia.test.cjs
 
+  report-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned TypeScript
+        run: npm install --global typescript@5.8.3
+      - name: Compile pure Don Report contract
+        run: tsc --strict --target es2020 --lib es2020 --module commonjs --outDir .report-build src/report-contract.ts
+      - name: Test report addresses, source ownership, privacy, and conflict handling
+        run: node tests/report-contract.test.cjs
+
   lint:
     runs-on: ubuntu-latest
     steps:
