@@ -86,6 +86,8 @@ jobs:
 
   push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # only the release publishing job can push the compiled distribution
     needs: [build, lint, security-credentials]
     if: github.ref == 'refs/heads/main'
     steps:
