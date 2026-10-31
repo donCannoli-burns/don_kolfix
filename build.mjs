@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
 const watch = args.some((a) => a === "--watch" || a === "-w");
 
 build({
-  entryPoints: { kolfix: "src/main.ts" },
+  entryPoints: { kolfix: "src/main.ts", don_report: "src/don-report.ts" },
   bundle: true,
   minifySyntax: true,
   platform: "node",

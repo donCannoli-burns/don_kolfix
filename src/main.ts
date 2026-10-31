@@ -13,6 +13,11 @@ import {
 import { $effect, $item, $items, get, PropertiesManager, set } from "libram";
 
 import {
+  initializeReportPreferences,
+  showReportPreferences,
+  verifyReportPreferences,
+} from "./report-preferences";
+import {
   initializeDonStatePreferences,
   showDonStatePreferences,
   verifyDonStatePreferences,
@@ -131,6 +136,18 @@ const config = Args.create("kolfix", "For updating important KoLmafia settings",
     help: "Validate Don State v0.2 preferences without changing them",
     setting: "",
   }),
+  reportStatus: Args.flag({
+    help: "Show Don Report canonical index policies and source toggles (read-only)",
+    setting: "",
+  }),
+  reportInit: Args.flag({
+    help: "Initialize Don Report source, relay, diff and record toggles OFF",
+    setting: "",
+  }),
+  reportVerify: Args.flag({
+    help: "Validate Don Report v1 policy toggles without running collectors",
+    setting: "",
+  }),
 });
 
 const places = [
@@ -187,6 +204,14 @@ export default function main(command = "help"): void {
     if (config.stateInit) initializeDonStatePreferences();
     if (config.stateVerify) verifyDonStatePreferences();
     if (config.stateStatus) showDonStatePreferences();
+    return;
+  }
+
+  // Report controls bypass all legacy KoLFix mutation paths, too.
+  if (config.reportStatus || config.reportInit || config.reportVerify) {
+    if (config.reportInit) initializeReportPreferences();
+    if (config.reportVerify) verifyReportPreferences();
+    if (config.reportStatus) showReportPreferences();
     return;
   }
 
@@ -332,7 +357,7 @@ export default function main(command = "help"): void {
           // Don State preferences are an untrusted projection of an immutable
           // event journal. Old session logs must never replay these cached
           // values across rollover or ascension.
-          if (pref.startsWith("donState_")) {
+          if (pref.startsWith("donState_") || pref.startsWith("donReport_")) {
             print(`Skipping Don State projection during session recovery: ${pref}`, "orange");
             continue;
           }
