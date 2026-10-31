@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/don-report-contract-v1-20261030]
   pull_request:
     branches: [main]
   workflow_dispatch:
