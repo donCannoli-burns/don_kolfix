@@ -4,10 +4,16 @@
  */
 export const DON_REPORT_VERSION = "1.0" as const;
 export const DON_SOURCES = [
-  "accountval", "philter", "greenbox", "consume", "chit",
-  "excavator", "watersheep", "custom_ash"
+  "accountval",
+  "philter",
+  "greenbox",
+  "consume",
+  "chit",
+  "excavator",
+  "watersheep",
+  "custom_ash",
 ] as const;
-export type DonSource = (typeof DON_SOURCES)[number];
+export type DonSource = typeof DON_SOURCES[number];
 export type DonState = "observed" | "known_unknown" | "ignored" | "unobserved" | "conflict";
 export type DonEvidenceKind = "cached" | "parsed_page" | "derived" | "manual_claim";
 export type DonValue = string | number | boolean | null;
@@ -48,47 +54,67 @@ const SUBJECT = /^[a-z][a-z0-9_]*\/[1-9][0-9]*$/;
 const ID = /^[A-Za-z0-9_-]{1,80}$/;
 const DATE = /^[0-9]{8}$/;
 const TIME = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/;
-const SENSITIVE = /(?:https?:|pwd\s*[:=]|password\s*[:=]|token\s*[:=]|cookie\s*[:=]|authorization\s*[:=]|@|[<>\r\n])/i;
+const SENSITIVE =
+  /(?:https?:|pwd\s*[:=]|password\s*[:=]|token\s*[:=]|cookie\s*[:=]|authorization\s*[:=]|@|[<>\r\n])/i;
 
 export function validScope(s: DonScope): boolean {
-  return !!s && /^[0-9]{1,12}$/.test(s.playerId) &&
-    DATE.test(s.day) && Number.isSafeInteger(s.life) && s.life >= 0;
+  return (
+    !!s &&
+    /^[0-9]{1,12}$/.test(s.playerId) &&
+    DATE.test(s.day) &&
+    Number.isSafeInteger(s.life) &&
+    s.life >= 0
+  );
 }
 export function nodeAddress(s: DonScope, n: DonNode): string {
-  if (!validScope(s) || !n || !TOKEN.test(n.domain) ||
-      !SUBJECT.test(n.subject) || !TOKEN.test(n.metric))
+  if (
+    !validScope(s) ||
+    !n ||
+    !TOKEN.test(n.domain) ||
+    !SUBJECT.test(n.subject) ||
+    !TOKEN.test(n.metric)
+  )
     throw new Error("DON_REPORT_INVALID_ADDRESS");
   return `donstate:v1:${s.playerId}:${s.day}:${s.life}:${n.domain}:${n.subject}:${n.metric}`;
 }
 export function sourceDirectory(source: DonSource): string {
-  if (!DON_SOURCES.includes(source))
-    throw new Error("DON_REPORT_UNKNOWN_SOURCE");
+  if (!DON_SOURCES.includes(source)) throw new Error("DON_REPORT_UNKNOWN_SOURCE");
   return `d_data/d_${source}`;
 }
 export function reportFilePath(report: DonReport): string {
   validateReport(report);
   // Individual sources own separate materialized exports; path is a proposal,
   // not write authorization. Production must allocate a unique receipt ID.
-  return `${sourceDirectory(report.source)}/${report.scope.playerId}/${report.scope.day}/life-${report.scope.life}/${report.id}.json`;
+  return `${sourceDirectory(report.source)}/${report.scope.playerId}/${report.scope.day}/life-${
+    report.scope.life
+  }/${report.id}.json`;
 }
 export function validateReport(r: DonReport): void {
-  if (!r || r.schema !== "don-report-v1" || !ID.test(r.id) ||
-      !DON_SOURCES.includes(r.source) || !validScope(r.scope) ||
-      r.address !== nodeAddress(r.scope, r.node) ||
-      !TIME.test(r.observedAt) ||
-      !["observed", "known_unknown", "ignored", "unobserved", "conflict"].includes(r.state) ||
-      !["cached", "parsed_page", "derived", "manual_claim"].includes(r.evidence) ||
-      (r.reason !== null && (typeof r.reason !== "string" ||
-        r.reason.length > 160 || SENSITIVE.test(r.reason))) ||
-      (r.receiptId !== null && !ID.test(r.receiptId)))
+  if (
+    !r ||
+    r.schema !== "don-report-v1" ||
+    !ID.test(r.id) ||
+    !DON_SOURCES.includes(r.source) ||
+    !validScope(r.scope) ||
+    r.address !== nodeAddress(r.scope, r.node) ||
+    !TIME.test(r.observedAt) ||
+    !["observed", "known_unknown", "ignored", "unobserved", "conflict"].includes(r.state) ||
+    !["cached", "parsed_page", "derived", "manual_claim"].includes(r.evidence) ||
+    (r.reason !== null &&
+      (typeof r.reason !== "string" || r.reason.length > 160 || SENSITIVE.test(r.reason))) ||
+    (r.receiptId !== null && !ID.test(r.receiptId))
+  )
     throw new Error("DON_REPORT_INVALID_RECORD");
   const v = r.value;
-  if (r.state !== "observed" && v !== null)
-    throw new Error("DON_REPORT_NONOBSERVED_VALUE");
-  if (r.state === "observed" &&
-      !(typeof v === "boolean" || (typeof v === "number" && Number.isFinite(v) &&
-        Number.isSafeInteger(v)) ||
-        (typeof v === "string" && v.length > 0 && v.length <= 160 && !SENSITIVE.test(v))))
+  if (r.state !== "observed" && v !== null) throw new Error("DON_REPORT_NONOBSERVED_VALUE");
+  if (
+    r.state === "observed" &&
+    !(
+      typeof v === "boolean" ||
+      (typeof v === "number" && Number.isFinite(v) && Number.isSafeInteger(v)) ||
+      (typeof v === "string" && v.length > 0 && v.length <= 160 && !SENSITIVE.test(v))
+    )
+  )
     throw new Error("DON_REPORT_UNSAFE_VALUE");
 }
 function equalValue(a: DonValue, b: DonValue): boolean {
@@ -104,7 +130,8 @@ export function projectReports(reports: readonly DonReport[], address: string): 
   const contributors: string[] = [];
   const conflicts: string[] = [];
   const ids = new Map<string, string>();
-  let ignored = false, knownUnknown = false;
+  let ignored = false,
+    knownUnknown = false;
   for (const r of reports) {
     validateReport(r);
     if (r.address !== address) throw new Error("DON_REPORT_SCOPE_MIX");
@@ -121,13 +148,21 @@ export function projectReports(reports: readonly DonReport[], address: string): 
     if (r.state === "known_unknown") knownUnknown = true;
     if (r.state === "ignored") ignored = true;
   }
-  if (observed.length > 1 && observed.some(r => !equalValue(r.value, observed[0].value)))
-    conflicts.push(...observed.map(r => r.id));
-  const state: DonState = conflicts.length > 0 ? "conflict" :
-    observed.length > 0 ? "observed" :
-    knownUnknown ? "known_unknown" : ignored ? "ignored" : "unobserved";
+  if (observed.length > 1 && observed.some((r) => !equalValue(r.value, observed[0].value)))
+    conflicts.push(...observed.map((r) => r.id));
+  const state: DonState =
+    conflicts.length > 0
+      ? "conflict"
+      : observed.length > 0
+      ? "observed"
+      : knownUnknown
+      ? "known_unknown"
+      : ignored
+      ? "ignored"
+      : "unobserved";
   return {
-    address, state,
+    address,
+    state,
     value: state === "observed" ? observed[0].value : null,
     contributors,
     conflicts: [...new Set(conflicts)],
@@ -142,20 +177,24 @@ export const DON_REPORT_ROUTES = {
   spading_state: { owner: "excavator", domain: "events", requiresPriceConsent: false },
 } as const;
 export type DonReportRoute = keyof typeof DON_REPORT_ROUTES;
-export function parseDonReportCommand(input: string):
-  { route: DonReportRoute; arguments: string[]; quiet: boolean; diff: boolean; print: boolean } {
+export function parseDonReportCommand(input: string): {
+  route: DonReportRoute;
+  arguments: string[];
+  quiet: boolean;
+  diff: boolean;
+  print: boolean;
+} {
   if (typeof input !== "string" || input.length > 256 || /[\r\n;|&#]/.test(input))
     throw new Error("DON_REPORT_INVALID_COMMAND");
   const args = input.trim().split(/\s+/).filter(Boolean);
   const name = args.shift();
-  if (!name || !(name in DON_REPORT_ROUTES))
-    throw new Error("DON_REPORT_UNKNOWN_COMMAND");
-  const opts = args.filter(a => a.startsWith("-"));
-  if (opts.some(a => !["--quiet", "--diff", "--print"].includes(a)))
+  if (!name || !(name in DON_REPORT_ROUTES)) throw new Error("DON_REPORT_UNKNOWN_COMMAND");
+  const opts = args.filter((a) => a.startsWith("-"));
+  if (opts.some((a) => !["--quiet", "--diff", "--print"].includes(a)))
     throw new Error("DON_REPORT_UNKNOWN_OPTION");
   return {
     route: name as DonReportRoute,
-    arguments: args.filter(a => !a.startsWith("-")),
+    arguments: args.filter((a) => !a.startsWith("-")),
     quiet: opts.includes("--quiet"),
     diff: opts.includes("--diff"),
     print: opts.includes("--print"),
